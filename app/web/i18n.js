@@ -873,6 +873,10 @@ const I18N = {
 };
 
 function _detectUiLang() {
+  const fromQuery = (() => {
+    try { return new URLSearchParams(location.search).get("lang"); } catch { return null; }
+  })();
+  if (fromQuery && SUPPORTED_UI_LANGS.includes(fromQuery)) return fromQuery;
   const saved = (() => { try { return localStorage.getItem("ui.lang"); } catch { return null; } })();
   if (saved && SUPPORTED_UI_LANGS.includes(saved)) return saved;
   const nav = (navigator.language || "en").toLowerCase().split("-")[0];

@@ -18,6 +18,6 @@ piper-tts>=1.2.0
 yt-dlp>=2025.0.0
 curl_cffi>=0.10.0
 
-# NVIDIA CUDA 运行库（Windows GPU 加速按需安装，CPU 模式可跳过）
-nvidia-cublas-cu12>=12.0.0; sys_platform == "win32"
-nvidia-cudnn-cu12>=9.0.0; sys_platform == "win32"
+# 注：默认安装纯跨平台 CPU 依赖，不强制需要 NVIDIA 显卡。
+# 若本机配有 NVIDIA CUDA 12 显卡并希望开启 GPU 加速，请按需执行：
+#   pip install -r requirements-cuda.txt

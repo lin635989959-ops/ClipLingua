@@ -90,11 +90,11 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-> **Optional: NVIDIA GPU Acceleration for OCR & Vocal Separation**  
-> Default dependencies install CPU `onnxruntime` for zero-friction cross-platform setup (Windows / macOS / Linux). On machines with an NVIDIA CUDA 12 GPU, swap to `onnxruntime-gpu` and ClipLingua will automatically detect CUDA (10x+ faster OCR & vocal separation):
+> **Optional: NVIDIA GPU Acceleration (Whisper + OCR + Vocal Separation)**  
+> Default `requirements.txt` installs lightweight, cross-platform CPU dependencies only (Windows / macOS / Linux) — **no NVIDIA GPU is required**. On machines with an NVIDIA CUDA 12 GPU, install the optional GPU extras and ClipLingua will automatically detect CUDA (10x+ faster transcription, OCR & vocal separation):
 > ```bash
 > pip uninstall -y onnxruntime
-> pip install onnxruntime-gpu
+> pip install -r requirements-cuda.txt
 > ```
 > Optional tuning environment variables: `CLIPLINGUA_OCR_FPS` (default `1.5`), `CLIPLINGUA_AUTO_OCR=0` (run OCR only on demand), `CLIPLINGUA_WHISPER_BEAM` (default `2`).
 

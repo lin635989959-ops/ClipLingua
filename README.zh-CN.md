@@ -88,11 +88,11 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-> **可选：NVIDIA GPU 加速 OCR 与人声分离**  
-> 默认依赖会自动安装跨平台 CPU 版 `onnxruntime`，以保证 Windows / macOS / Linux 零配置运行。若本机配有 NVIDIA CUDA 12 显卡，执行以下两条命令替换为 `onnxruntime-gpu`，程序会自动检测并启用 GPU 加速（可提速 10 倍以上）：
+> **可选：NVIDIA GPU 加速（语音转写 + OCR + 人声分离）**  
+> 默认的 `requirements.txt` 仅安装轻量级跨平台 CPU 依赖（Windows / macOS / Linux 均可直接运行），**完全不强制要求 NVIDIA 显卡**。若本机配有 NVIDIA CUDA 12 显卡，按需执行以下两条命令即可开启全链路 GPU 加速（可提速 10 倍以上）：
 > ```bash
 > pip uninstall -y onnxruntime
-> pip install onnxruntime-gpu
+> pip install -r requirements-cuda.txt
 > ```
 > 此外还支持通过环境变量按需微调速度：`CLIPLINGUA_OCR_FPS`（默认 `1.5`）、`CLIPLINGUA_AUTO_OCR=0`（导入后仅在手动点击时执行字幕校对）、`CLIPLINGUA_WHISPER_BEAM`（默认 `2`）。
 

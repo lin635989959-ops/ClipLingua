@@ -70,14 +70,15 @@ def main() -> None:
             time.sleep(0.2)
 
     shots = [
-        ("01_home.png", f"http://127.0.0.1:{port}/", "1. Multilingual Dashboard (SV / EN / ES / ZH)"),
-        ("02_reader.png", f"http://127.0.0.1:{port}/lesson/demo_sv_coffee", "2. Word-Level Timestamps + OCR & AI Verification"),
-        ("03_translate.png", f"http://127.0.0.1:{port}/lesson/demo_sv_coffee/translate", "3. Zero-API-Key Bilingual Translation & Lemma Extraction"),
-        ("04_vocab.png", f"http://127.0.0.1:{port}/vocab", "4. Cross-Lesson Vocabulary Book with Lemma Merging"),
-        ("05_review.png", f"http://127.0.0.1:{port}/review", "5. Guilt-Free Spaced Repetition (4 Progressive Modes)"),
+        ("01_home.png", f"http://127.0.0.1:{port}/?lang=en", "1. Multilingual Dashboard (SV / EN / ES / ZH)"),
+        ("02_reader.png", f"http://127.0.0.1:{port}/lesson/demo_sv_coffee?lang=en", "2. Word-Level Timestamps + OCR & AI Verification"),
+        ("03_translate.png", f"http://127.0.0.1:{port}/lesson/demo_sv_coffee/translate?lang=en", "3. Zero-API-Key Bilingual Translation & Lemma Extraction"),
+        ("04_vocab.png", f"http://127.0.0.1:{port}/vocab?lang=en", "4. Cross-Lesson Vocabulary Book with Lemma Merging"),
+        ("05_review.png", f"http://127.0.0.1:{port}/review?lang=en", "5. Guilt-Free Spaced Repetition (4 Progressive Modes)"),
     ]
 
     tmp_shots = Path(tempfile.mkdtemp(prefix="cliplingua_shots_"))
+    tmp_profile = Path(tempfile.mkdtemp(prefix="cliplingua_browser_"))
     captured: list[tuple[Path, str]] = []
     try:
         for fname, url, caption in shots:
@@ -86,6 +87,12 @@ def main() -> None:
                 [
                     browser,
                     "--headless=new",
+                    f"--user-data-dir={tmp_profile}",
+                    "--lang=en-US",
+                    "--no-first-run",
+                    "--no-default-browser-check",
+                    "--disable-extensions",
+                    "--no-proxy-server",
                     "--disable-gpu",
                     "--hide-scrollbars",
                     "--window-size=1200,760",
@@ -95,9 +102,10 @@ def main() -> None:
                 ],
                 check=True,
                 capture_output=True,
+                timeout=30,
             )
             captured.append((out_png, caption))
-            print(f"  Captured {fname}")
+            print(f"  Captured {fname}", flush=True)
 
         from PIL import Image, ImageDraw, ImageFont
 
@@ -144,6 +152,7 @@ def main() -> None:
         print(f"Generated {gif_path} ({gif_path.stat().st_size / 1024:.1f} KB)")
     finally:
         shutil.rmtree(tmp_shots, ignore_errors=True)
+        shutil.rmtree(tmp_profile, ignore_errors=True)
         shutil.rmtree(TMP_LESSONS, ignore_errors=True)
 
 
