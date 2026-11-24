@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClipLingua</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+  .layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+  aside {
+    position: sticky; top: 16px; max-height: calc(100vh - 32px);
+    display: flex; flex-direction: column; gap: 12px; min-height: 0;
+  }
+  video { width: 100%; max-height: 58vh; border-radius: var(--radius); background: #000; flex: none; display: block; }
+  .vocab { padding: 12px 14px; display: flex; flex-direction: column; min-height: 120px; flex: 1 1 auto; overflow: hidden; }
+  .vocab h2 { font-size: 14px; margin: 0 0 6px; display: flex; align-items: baseline; gap: 8px; }
+  .vocab h2 .n { color: var(--muted); font-weight: 400; }
+  .vocab ul { list-style: none; margin: 0; padding: 0; overflow-y: auto; min-height: 0; }
+  .vocab li { display: flex; align-items: center; gap: 4px; padding: 2px 0; border-bottom: 1px solid var(--line); }
+  .vocab li:last-child { border-bottom: 0; }
+  .vocab li .w { flex: 1; cursor: pointer; overflow-wrap: anywhere; }
+  .vocab li .w:hover { color: var(--accent); }
+  .vocab li .cnt { font-size: 12px; color: var(--muted); }
+  .vocab li.gone .w { color: var(--muted); text-decoration: line-through; }
+  .vocab li button { padding: 2px 6px; }
+  .vocab .empty { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 14px; margin-bottom: 12px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; padding: 5px 12px; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button.on { background: var(--accent); color: #fff; font-weight: 600; }
+  .seg.speed button { padding: 5px 8px; font-variant-numeric: tabular-nums; }
+  .toolbar label { font-size: 13px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; user-select: none; }
+  .toolbar .stats { margin-left: auto; font-size: 13px; color: var(--muted); }
+  .hint { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+  .hint .k { display: inline-block; padding: 0 5px; border-radius: 4px; background: var(--gold-soft); color: var(--text); }
+  .hint .u { border-bottom: 2px dashed var(--bad); }
+  .hint .d { border-bottom: 3px solid var(--diff); }
+
+  .text { padding: 6px 0; }
+  .sent { display: flex; gap: 10px; padding: 8px 14px 8px 10px; border-left: 3px solid transparent; }
+  .sent.on { border-left-color: var(--accent); background: var(--accent-soft); }
+  .sent .play {
+    flex: none; align-self: flex-start; margin-top: 3px; padding: 1px 7px; font-size: 12px;
+    color: var(--muted); font-variant-numeric: tabular-nums; background: transparent;
+  }
+  .sent .play:hover { color: var(--accent); }
+  .sent .body { flex: 1; min-width: 0; }
+  .toks { line-height: 2.15; font-size: 17px; }
+  .wd { white-space: nowrap; }
+  .punct { color: var(--muted); }
+  .tok {
+    display: inline-block; line-height: 1.5; padding: 0 5px; border-radius: 5px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); transition: background .12s;
+  }
+  .tok:hover { border-color: var(--accent); }
+  .tok.picked { background: var(--gold); border-color: var(--gold); color: #1f2328; font-weight: 600; }
+  .tok.unsure { border-bottom: 2px dashed var(--bad); }
+  .tok.diff { border-bottom: 3px solid var(--diff); }
+
+  :root { --diff: #d4570f; --diff-soft: #fdeee4; }
+  @media (prefers-color-scheme: dark) { :root { --diff: #f97316; --diff-soft: #3b2314; } }
+  .sugg { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 4px 0 2px;
+          padding: 4px 8px; border-radius: 8px; background: var(--diff-soft); border-left: 3px solid var(--diff); font-size: 14px; }
+  .sugg .lbl { font-size: 12px; color: var(--muted); }
+  .sugg .old { text-decoration: line-through; color: var(--muted); }
+  .sugg .new { font-weight: 600; }
+  .sugg button { padding: 1px 8px; font-size: 13px; }
+  .sugg .src { font-size: 12px; color: var(--muted); cursor: help; }
+  .sugg .src.ai { color: var(--accent); }
+  .subcheck { font-size: 13px; }
+  .tok.now { box-shadow: 0 0 0 2px var(--accent); }
+  .tok.flash { animation: flash 1s; }
+  @keyframes flash { 0%, 60% { box-shadow: 0 0 0 4px var(--accent); } }
+  body.mode-edit .tok { border-style: dashed; }
+  body.mode-edit .tok.sel { background: var(--accent); border-color: var(--accent); color: #fff; border-style: solid; }
+
+  .editor { margin: 8px 0 4px; padding: 10px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); }
+  .editor .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .editor input { flex: 1 1 220px; font-size: 16px; }
+  .editor .tip { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .next { padding: 12px 14px; margin-top: 12px; font-size: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  @media (max-width: 720px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; max-height: none; }
+    video { max-height: 50vh; }
+    .vocab ul { max-height: 30vh; }
+  }
+</style>
+</head>
+<body class="mode-pick">
+<div class="wrap" style="max-width: 1080px">
+  <header class="top">
+    <a class="btn" href="/" data-i18n="backHome">← 课程列表</a>
+    <span id="langBadge"></span>
+    <h1 id="title"></h1>
+    <span class="spacer"></span>
+    <span data-ui-lang-slot></span>
+  </header>
+  <nav class="steps" id="steps"></nav>
+
+  <div class="layout">
+    <aside>
+      <video id="video" controls playsinline preload="metadata"></video>
+      <div class="audio-box" id="audioBox" hidden>
+        <span style="font-size:34px">🎧</span>
+        <audio id="audioPlayer" controls preload="metadata"></audio>
+      </div>
+      <div class="card vocab">
+        <h2><span data-i18n="vocabPanel">生词栏</span> <span class="n" id="vocab-n"></span></h2>
+        <ul id="vocab-list"></ul>
+        <p class="empty" id="vocab-empty" data-i18n="vocabEmpty"></p>
+      </div>
+    </aside>
+
+    <main>
+      <div class="card toolbar">
+        <div class="seg" role="group">
+          <button data-mode="pick" class="on" data-i18n="modePick">选生词</button>
+          <button data-mode="edit" data-i18n="modeEdit">修正识别</button>
+        </div>
+        <div class="seg speed" role="group">
+          <button data-rate="0.25">0.25×</button>
+          <button data-rate="0.4">0.4×</button>
+          <button data-rate="0.5">0.5×</button>
+          <button data-rate="0.75">0.75×</button>
+          <button data-rate="1" class="on">1×</button>
+        </div>
+        <label><input type="checkbox" id="opt-stop" checked> <span data-i18n="optStop">播完一句暂停</span></label>
+        <label><input type="checkbox" id="opt-follow" checked> <span data-i18n="optFollow">跟随播放</span></label>
+        <button class="small subcheck" id="subcheck-btn" data-i18n="subcheckBtn">📺 画面字幕校对</button>
+        <span class="stats" id="stats"></span>
+      </div>
+      <p class="hint" id="hint"></p>
+      <div class="card text" id="text"></div>
+      <div class="card next">
+        <span id="next-text" class="muted"></span>
+        <button class="primary" id="next-btn" data-i18n="nextTranslate">下一步：翻译对照 →</button>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/static/i18n.js"></script>
+<script src="/static/common.js"></script>
+<script src="/static/lesson.js"></script>
+</body>
+</html>

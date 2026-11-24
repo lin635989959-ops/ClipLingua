@@ -1,0 +1,23 @@
+# ClipLingua 核心运行依赖（推荐 Python 3.11 / 3.12）
+Flask>=3.1.0,<4.0.0
+faster-whisper>=1.1.0,<2.0.0
+ctranslate2>=4.5.0
+# av 16+ 移除了 faster-whisper 依赖的部分接口，固定 15.x
+av>=15.0.0,<16.0.0
+huggingface_hub>=0.24.0
+
+# 画面字幕 OCR（CPU 运行；会自动安装 opencv / numpy / onnxruntime）
+rapidocr>=3.0.0
+imageio-ffmpeg>=0.6.0
+
+# 单词与例句语音合成：edge-tts 为免费在线神经语音；piper-tts 为完全离线备用引擎
+edge-tts>=7.0.0
+piper-tts>=1.2.0
+
+# 可选：用于从用户拥有合法使用权的公开视频链接导入媒体（标准开源工具）
+yt-dlp>=2025.0.0
+curl_cffi>=0.10.0
+
+# NVIDIA CUDA 运行库（Windows GPU 加速按需安装，CPU 模式可跳过）
+nvidia-cublas-cu12>=12.0.0; sys_platform == "win32"
+nvidia-cudnn-cu12>=9.0.0; sys_platform == "win32"

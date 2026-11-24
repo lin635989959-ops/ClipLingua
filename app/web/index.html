@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClipLingua</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+  .new { padding: 18px; margin-bottom: 22px; }
+  .new-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  .new-head h2 { font-size: 16px; margin: 0; }
+  .lang-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 13px; }
+  .lang-row label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+  .lang-row select { padding: 4px 8px; font-size: 13px; color: var(--text); }
+
+  .dropzone {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    padding: 22px 16px; border: 2px dashed var(--line); border-radius: 10px;
+    background: var(--bg); cursor: pointer; text-align: center; transition: border-color .15s, background .15s;
+  }
+  .dropzone:hover, .dropzone.drop { border-color: var(--accent); background: var(--accent-soft); }
+  .dropzone .dz-title { font-weight: 600; font-size: 15px; }
+  .dropzone .dz-sub { font-size: 13px; color: var(--muted); }
+
+  .url-details { margin-top: 12px; font-size: 13px; }
+  .url-details > summary { cursor: pointer; color: var(--muted); user-select: none; }
+  .url-details > summary:hover { color: var(--accent); }
+  .url-details .row { display: flex; gap: 8px; margin-top: 10px; }
+  .url-details .row input { flex: 1; }
+
+  .list-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
+  .list-head h2 { font-size: 16px; margin: 0; }
+  .lang-filter { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .lang-filter button { padding: 3px 10px; font-size: 12px; border-radius: 999px; }
+  .lang-filter button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+  .lessons { display: flex; flex-direction: column; gap: 10px; }
+  .lesson { display: flex; gap: 14px; padding: 12px; align-items: stretch; }
+  .lesson.clickable { cursor: pointer; }
+  .lesson.clickable:hover { border-color: var(--accent); }
+  .thumb {
+    width: 66px; height: 108px; flex: none; border-radius: 7px; overflow: hidden;
+    background: var(--bg); display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 24px;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .title-row { display: flex; align-items: center; gap: 8px; }
+  .title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rename { opacity: 0; padding: 0 6px; font-size: 13px; }
+  .lesson:hover .rename { opacity: 1; }
+  .meta { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .preview {
+    font-size: 14px; color: var(--muted); font-style: italic;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .status { margin-top: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .status .bar { flex: 1; min-width: 120px; }
+  .status .msg { font-size: 13px; color: var(--muted); }
+  .status .rec { font-size: 12px; color: var(--muted); flex-basis: 100%; }
+  .status .err { font-size: 13px; color: var(--bad); flex-basis: 100%; word-break: break-word; white-space: pre-line; }
+  .empty { text-align: center; padding: 40px 16px; color: var(--muted); }
+
+  .review-box { display: flex; align-items: center; gap: 14px; padding: 12px 18px; margin-bottom: 16px; color: var(--text); }
+  .review-box:hover { border-color: var(--accent); text-decoration: none; }
+  .review-box .n { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .review-box .t { flex: 1; }
+  .review-box .s { font-size: 13px; color: var(--muted); }
+
+  @media (max-width: 560px) {
+    .url-details .row { flex-direction: column; }
+    .thumb { width: 54px; height: 90px; }
+    .rename { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="brand-mark" aria-hidden="true">CL</span>
+    <h1 data-i18n="appName">ClipLingua</h1>
+    <span class="spacer"></span>
+    <a class="btn" href="/review" data-i18n="navReview">🔁 生词复习</a>
+    <a class="btn" href="/vocab" data-i18n="navVocab">📒 总生词本</a>
+    <span data-ui-lang-slot></span>
+  </header>
+
+  <a class="card review-box" id="reviewBox" href="/review" hidden></a>
+
+  <section class="card new" id="newBox">
+    <div class="new-head">
+      <h2 data-i18n="newLesson">新建课程</h2>
+      <div class="lang-row">
+        <label><span data-i18n="targetLangLabel">学习语言</span>
+          <select id="targetLang"></select>
+        </label>
+        <label><span data-i18n="nativeLangLabel">译文语言</span>
+          <select id="nativeLang"></select>
+        </label>
+      </div>
+    </div>
+
+    <label class="dropzone" id="dropzone" for="fileInput">
+      <span style="font-size:26px">🎬</span>
+      <span class="dz-title" data-i18n="dropTitle">点击选择或拖拽本地视频 / 音频文件到这里</span>
+      <span class="dz-sub" data-i18n="dropSub">支持 MP4 / MOV / WEBM / MKV / MP3 / WAV / M4A</span>
+      <input type="file" id="fileInput" accept="video/*,audio/*,.mp4,.mov,.webm,.mkv,.mp3,.wav,.m4a,.ogg,.flac" hidden>
+    </label>
+
+    <details class="url-details">
+      <summary data-i18n="urlSummary">或从公开媒体链接导入（可选）</summary>
+      <form class="row" id="urlForm">
+        <input type="text" id="urlInput" autocomplete="off" data-i18n-ph="urlPlaceholder">
+        <button class="primary" id="urlBtn" type="submit" data-i18n="urlBtn">导入并识别</button>
+      </form>
+    </details>
+    <p class="legal-note" data-i18n="legalNote"></p>
+  </section>
+
+  <div class="list-head">
+    <h2 data-i18n="myLessons">我的课程</h2>
+    <div class="lang-filter" id="langFilter"></div>
+    <span class="muted" id="count" style="font-size:13px"></span>
+  </div>
+  <div class="lessons" id="lessons"></div>
+</div>
+
+<script src="/static/i18n.js"></script>
+<script src="/static/common.js"></script>
+<script src="/static/home.js"></script>
+</body>
+</html>

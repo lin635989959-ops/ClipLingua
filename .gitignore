@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# 本地课程数据、录音与缓存（包含个人数据或第三方媒体，严禁提交）
+lessons/*
+!lessons/.gitkeep
+tts_cache/*
+!tts_cache/.gitkeep
+tmp/
+cookies.txt
+llm_config.json
+
+# 大体积模型权重与第三方二进制（通过脚本按需下载，各自遵循对应协议）
+models/*
+!models/.gitkeep
+tools/*.exe
+tools/ffmpeg*
+tools/ffprobe*
+
+# 编辑器与本地调试配置
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

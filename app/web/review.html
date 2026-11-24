@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClipLingua · Review</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/practice.css">
+<style>
+  .stats { display: flex; gap: 36px; margin: 10px 0 6px; }
+  .stats .muted { font-size: 13px; }
+  .levels { display: flex; gap: 4px; align-items: flex-end; height: 48px; margin: 14px 0 4px; max-width: 420px; }
+  .levels .col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; font-size: 11px; color: var(--muted); }
+  .levels .col i { display: block; width: 100%; background: var(--accent); border-radius: 3px 3px 0 0; min-height: 2px; opacity: .85; }
+  .levels .col.new i { background: var(--line); }
+  .levels-label { display: flex; gap: 4px; max-width: 420px; font-size: 11px; color: var(--muted); }
+  .levels-label span { flex: 1; text-align: center; }
+  .opts input[type=number] { font: inherit; width: 64px; padding: 4px 6px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+  .opts select { font: inherit; padding: 4px 6px; }
+  .howto { font-size: 13px; color: var(--muted); margin-top: 14px; }
+  .howto summary { cursor: pointer; }
+  .howto table { border-collapse: collapse; margin: 8px 0; }
+  .howto td, .howto th { border: 1px solid var(--line); padding: 2px 8px; text-align: center; font-weight: normal; }
+  .lv { letter-spacing: 1px; color: var(--accent); font-size: 13px; white-space: nowrap; }
+  .lv.new { color: var(--muted); letter-spacing: 0; }
+  .mode-tag { display: inline-flex; gap: 8px; align-items: center; }
+  .judge button small { display: block; font-size: 12px; font-weight: normal; opacity: .8; }
+  .judge button { flex-direction: column; gap: 0; }
+  .cloze-sent { font-size: 20px; line-height: 1.7; max-width: 560px; }
+  .cloze-sent .blank { display: inline-block; min-width: 4em; border-bottom: 2px solid var(--accent); }
+  .cloze-sent .src { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .change { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .change b { color: var(--text); }
+  .wlist .chg { font-size: 12px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+  .wlist.one { columns: 1; }
+  .free-grid { display: grid; grid-template-columns: auto 1fr; gap: 10px 14px; align-items: center; margin: 12px 0; font-size: 14px; }
+  .free-grid select { justify-self: start; min-width: 220px; max-width: 100%; }
+  .typo { margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap" style="max-width: 1000px">
+  <header class="top">
+    <a class="btn" href="/" data-i18n="backHome">← 课程列表</a>
+    <h1 data-i18n="navReview">🔁 生词复习</h1>
+    <span class="spacer"></span>
+    <a class="btn" href="/vocab" data-i18n="navVocab">📒 总生词本</a>
+    <span data-ui-lang-slot></span>
+  </header>
+  <nav class="steps" id="tabs"></nav>
+  <audio id="audio" preload="auto"></audio>
+  <div class="stage" id="main"></div>
+</div>
+<script src="/static/i18n.js"></script>
+<script src="/static/common.js"></script>
+<script src="/static/review.js"></script>
+</body>
+</html>

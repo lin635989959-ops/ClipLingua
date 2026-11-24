@@ -1,0 +1,53 @@
+/* 练习页（练习 1–3）和生词复习页共用 */
+  .stage { max-width: 680px; margin: 0 auto; }
+  .bar-row { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; font-size: 13px; color: var(--muted); }
+  .bar-row .bar { flex: 1; }
+  .card.q { padding: 26px 24px 22px; text-align: center; }
+  .cue { min-height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+  .speaker { width: 96px; height: 96px; border-radius: 50%; font-size: 40px; justify-content: center; padding: 0; }
+  .speaker.playing { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .prompt { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
+  .zh-big { font-size: 30px; font-weight: 650; line-height: 1.3; }
+  .sv-big { font-size: 34px; font-weight: 700; letter-spacing: .3px; }
+  .pos { font-size: 13px; color: var(--muted); }
+  .tools { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .answer { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line); display: flex; flex-direction: column; gap: 6px; align-items: center; }
+  .answer .note { font-size: 13px; color: var(--muted); max-width: 520px; }
+  .ctx { margin-top: 10px; padding: 10px 14px; border-radius: 8px; background: var(--bg); text-align: left; font-size: 15px; width: 100%; }
+  .ctx .z { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .ctx .blank { display: inline-block; min-width: 3em; border-bottom: 2px solid var(--accent); }
+  .judge { display: flex; justify-content: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+  .judge button { min-width: 150px; justify-content: center; }
+  .keys { margin-top: 12px; font-size: 12px; color: var(--muted); }
+
+  /* 拼写 */
+  .spell { display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+  .spell input { max-width: 320px; font-size: 22px; text-align: center; letter-spacing: 1px; }
+  .spell input.right { border-color: var(--ok); background: var(--ok-soft); }
+  .spell input.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .letters { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
+  .letters button { width: 44px; justify-content: center; font-size: 18px; padding: 6px 0; }
+  .verdict { font-size: 18px; font-weight: 650; margin-top: 14px; }
+  .verdict.right { color: var(--ok); }
+  .verdict.wrong { color: var(--bad); }
+  .diff { font-family: Consolas, "Cascadia Mono", monospace; font-size: 22px; letter-spacing: 2px; }
+  .diff .miss { color: var(--bad); text-decoration: underline; font-weight: 700; }
+  .diff .extra { color: var(--bad); text-decoration: line-through; opacity: .7; }
+  .diff-label { font-size: 12px; color: var(--muted); }
+  .hintline { font-family: Consolas, monospace; letter-spacing: 4px; font-size: 18px; color: var(--muted); }
+
+  /* 开始 / 结束页 */
+  .intro { padding: 22px 24px; }
+  .intro h2 { margin: 0 0 6px; font-size: 20px; }
+  .intro p { margin: 0 0 10px; }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0; font-size: 14px; }
+  .opts label { display: inline-flex; gap: 5px; align-items: center; cursor: pointer; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; align-items: center; }
+  .actions .sp { flex: 1; }
+  .last { font-size: 14px; padding: 10px 12px; border-radius: 8px; background: var(--bg); margin: 10px 0; }
+  .wlist { list-style: none; padding: 0; margin: 8px 0 0; columns: 2; column-gap: 24px; }
+  .wlist li { break-inside: avoid; padding: 3px 0; display: flex; gap: 6px; align-items: baseline; }
+  .wlist .w { font-weight: 600; }
+  .wlist .z { color: var(--muted); font-size: 14px; }
+  .big-num { font-size: 40px; font-weight: 700; color: var(--accent); line-height: 1.1; }
+  @media (max-width: 560px) { .wlist { columns: 1; } .judge button { min-width: 120px; } }

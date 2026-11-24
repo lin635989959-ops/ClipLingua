@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClipLingua · Stats</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+  .facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .fact { padding: 10px 12px; border-radius: 8px; background: var(--bg); }
+  .fact .k { font-size: 12px; color: var(--muted); }
+  .fact .v { font-size: 18px; font-weight: 650; }
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline li { display: flex; gap: 10px; padding: 5px 0; align-items: baseline; border-bottom: 1px solid var(--line); }
+  .timeline li:last-child { border-bottom: 0; }
+  .timeline .n { flex: 1; }
+  .timeline .d { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); padding: 4px 6px; border-bottom: 1px solid var(--line); }
+  td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bad-words { color: var(--bad); }
+  .recrow { display: flex; gap: 8px; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .recrow:last-child { border-bottom: 0; }
+  .recrow .t { flex: 1; min-width: 0; }
+</style>
+</head>
+<body>
+<div class="wrap" style="max-width: 1000px">
+  <header class="top">
+    <a class="btn" href="/" data-i18n="backHome">← 课程列表</a>
+    <span id="langBadge"></span>
+    <h1 id="title"></h1>
+    <span class="spacer"></span>
+    <span data-ui-lang-slot></span>
+  </header>
+  <nav class="steps" id="steps"></nav>
+  <div id="main"></div>
+</div>
+<audio id="mine"></audio>
+<script src="/static/i18n.js"></script>
+<script src="/static/common.js"></script>
+<script>
+"use strict";
+mountUiLangPicker();
+applyStaticI18n();
+
+const LESSON_ID = lessonIdFromPath();
+const main = document.getElementById("main");
+
+api("GET", `/api/lessons/${LESSON_ID}`).then(d => {
+  document.title = `${d.lesson.title} · ${t("step_record")}`;
+  document.getElementById("title").textContent = d.lesson.title;
+  document.getElementById("langBadge").innerHTML = langBadgeHtml(d.lesson.language || "sv");
+  renderLessonNav(LESSON_ID, "record", d.progress);
+  if (!d.record) { main.innerHTML = `<div class="card notice"><p>${esc(t("notReady"))}</p></div>`; return; }
+  const p = d.progress, rec = d.record;
+  const textOf = new Map(d.vocab.words.map(w => [w.key, w.text]));
+  const nS = d.transcript.sentences.length;
+
+  const facts = [
+    [t("factStart"), fmtDate(d.lesson.created_at).slice(0, 10)],
+    [t("factDur"), fmtDuration(d.lesson.duration)],
+    [t("factCount"), `${nS} / ${d.transcript.sentences.reduce((n, s) => n + s.tokens.length, 0)}`],
+    [t("factVocab"), d.vocab.words.length],
+    [t("factStage"), stageName(p.stage)],
+    [t("factDone"), p.completed_at ? fmtDate(p.completed_at) : "—"],
+  ].map(([k, v]) => `<div class="fact"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join("");
+
+  const stageRows = getLessonSteps().map(([key, , label]) => {
+    const st = p.stages[key] || {};
+    return `<li><span class="n">${esc(label)}</span><span class="d">${st.done_at ? (st.skipped ? "⏭ " : "✓ ") + fmtDate(st.done_at) : "—"}</span></li>`;
+  }).join("");
+
+  const goodOf = { listen: "known", recall: "known", spelling: "correct" };
+  const names = { listen: t("stage_listen"), recall: t("stage_recall"), spelling: t("stage_spelling") };
+  const practice = Object.keys(names).map(st => {
+    const rounds = p.stages[st]?.rounds || [];
+    const rows = rounds.slice().reverse().map(r => {
+      const res = Object.entries(r.results);
+      const good = res.filter(([, v]) => v === goodOf[st]).length;
+      const bad = res.filter(([, v]) => v !== goodOf[st]).map(([k]) => textOf.get(k) || k);
+      return `<tr><td class="num">${fmtDate(r.finished_at)}</td>
+        <td class="num"><b>${good}</b> / ${res.length}</td>
+        <td>${esc(r.mode || "")}</td>
+        <td class="bad-words">${bad.map(esc).join(", ")}</td></tr>`;
+    }).join("");
+    return `<div class="card panel"><h2>${esc(names[st])} <span class="muted" style="font-weight:400;font-size:13px">${rounds.length}</span></h2>
+      ${rounds.length ? `<table><thead><tr><th>${t("colTime")}</th><th>${t("colScore")}</th><th>${t("colMode")}</th><th>${t("colMiss")}</th></tr></thead><tbody>${rows}</tbody></table>`
+        : `<p class="muted" style="margin:0">${t("noPracticeYet")}</p>`}</div>`;
+  }).join("");
+
+  const recBy = new Map();
+  for (const r of d.recordings) { if (!recBy.has(r.sentence_id)) recBy.set(r.sentence_id, []); recBy.get(r.sentence_id).push(r); }
+  const recRows = d.transcript.sentences.filter(s => recBy.has(s.id)).map(s => {
+    const rs = recBy.get(s.id), last = rs[rs.length - 1];
+    return `<div class="recrow"><button class="ghost small" data-file="${esc(last.file)}">▶</button>
+      <span class="t">${esc(s.text)}</span><span class="muted" style="font-size:12px">${rs.length} × · ${fmtDate(last.at)}</span></div>`;
+  }).join("");
+
+  main.innerHTML = `
+    <div class="card panel"><div class="facts">${facts}</div></div>
+    <div class="card panel"><h2>${t("secSteps")}</h2><ul class="timeline">${stageRows}</ul></div>
+    ${practice}
+    <div class="card panel"><h2>${t("secReadAloud")} <span class="muted" style="font-weight:400;font-size:13px">
+      ${rec.read_aloud.sentences_recorded} / ${nS} (${rec.read_aloud.recordings})</span></h2>
+      ${recRows || `<p class="muted" style="margin:0">${t("noRecYet")}</p>`}</div>`;
+  main.querySelectorAll("[data-file]").forEach(b => b.addEventListener("click", () => {
+    const a = document.getElementById("mine");
+    a.src = `/media/${LESSON_ID}/recordings/${encodeURIComponent(b.dataset.file)}`;
+    a.play().catch(() => {});
+  }));
+}).catch(err => toast(err.message));
+</script>
+</body>
+</html>

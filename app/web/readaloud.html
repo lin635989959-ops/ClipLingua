@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClipLingua · Shadowing</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+  .layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+  aside { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 12px; }
+  video { width: 100%; max-height: 50vh; border-radius: var(--radius); background: #000; display: block; }
+  .ctl { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+  .ctl label { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .ctl select { font: inherit; padding: 2px 6px; }
+  .ctl .mic { font-size: 13px; color: var(--muted); }
+  .ctl .mic.on { color: var(--ok); }
+  .ctl .mic.err { color: var(--bad); }
+  #follow { justify-content: center; }
+  .keys { font-size: 12px; color: var(--muted); line-height: 2; }
+
+  .sents { padding: 4px 0; }
+  .s { padding: 10px 16px 10px 12px; border-left: 3px solid transparent; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .s:last-child { border-bottom: 0; }
+  .s.cur { border-left-color: var(--accent); background: var(--accent-soft); }
+  .s .num { font-size: 12px; color: var(--muted); margin-right: 6px; font-variant-numeric: tabular-nums; }
+  .s .src { font-size: 18px; line-height: 1.7; }
+  .s .src .w.now { background: var(--accent); color: #fff; border-radius: 4px; }
+  .s .tr { font-size: 14px; color: var(--muted); margin-top: 2px; }
+  body.hide-tr .s .tr { display: none; }
+  .s .btns { display: none; gap: 6px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
+  .s.cur .btns, .s.has .btns { display: flex; }
+  .s:not(.cur) .btns button:not(.keep) { display: none; }
+  .s .cnt { font-size: 12px; color: var(--muted); }
+  .rec-btn.on { background: var(--bad); border-color: var(--bad); color: #fff; animation: pulse 1.2s infinite; }
+  @keyframes pulse { 50% { opacity: .65; } }
+  .gap { height: 4px; border-radius: 2px; background: var(--line); margin-top: 8px; overflow: hidden; }
+  .gap > i { display: block; height: 100%; background: var(--gold); width: 0; }
+  .recs { width: 100%; margin: 4px 0 0; padding: 0; list-style: none; font-size: 13px; }
+  .recs li { display: flex; gap: 8px; align-items: center; padding: 2px 0; color: var(--muted); }
+  .done-box { padding: 16px 18px; margin-top: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .done-box.fin { background: var(--ok-soft); border-color: var(--ok); }
+  @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } aside { position: static; } }
+</style>
+</head>
+<body>
+<div class="wrap" style="max-width: 1080px">
+  <header class="top">
+    <a class="btn" href="/" data-i18n="backHome">← 课程列表</a>
+    <span id="langBadge"></span>
+    <h1 id="title"></h1>
+    <span class="spacer"></span>
+    <span data-ui-lang-slot></span>
+  </header>
+  <nav class="steps" id="steps"></nav>
+  <div class="layout">
+    <aside>
+      <video id="video" playsinline preload="auto"></video>
+      <div class="audio-box" id="audioBox" hidden>
+        <span style="font-size:32px">🎧</span>
+        <audio id="audioPlayer" controls preload="auto"></audio>
+      </div>
+      <div class="card ctl">
+        <button class="primary" id="follow" data-i18n="followStart"></button>
+        <label><input type="checkbox" id="opt-autorec"> <span data-i18n="optAutorec"></span></label>
+        <label><span data-i18n="optGap"></span>
+          <select id="opt-gap">
+            <option value="1.2">× 1.2</option>
+            <option value="1.5" selected>× 1.5</option>
+            <option value="2">× 2</option>
+            <option value="3">× 3</option>
+          </select></label>
+        <label><input type="checkbox" id="opt-tr" checked> <span data-i18n="optShowTr"></span></label>
+        <span class="mic" id="mic" data-i18n="micHint"></span>
+        <div class="keys"><span class="kbd">Space</span> ▶ · <span class="kbd">R</span> ● · <span class="kbd">M</span> ▶ · <span class="kbd">C</span> ⇄ · <span class="kbd">↑</span><span class="kbd">↓</span> · <span class="kbd">Esc</span></div>
+      </div>
+    </aside>
+    <main>
+      <p class="muted" style="margin:0 0 10px;font-size:14px" data-i18n="readAloudIntro"></p>
+      <div class="card sents" id="sents"></div>
+      <div class="card done-box" id="done-box"></div>
+    </main>
+  </div>
+</div>
+<audio id="mine"></audio>
+<script src="/static/i18n.js"></script>
+<script src="/static/common.js"></script>
+<script src="/static/readaloud.js"></script>
+</body>
+</html>

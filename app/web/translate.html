@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClipLingua · Translate</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+  .how { margin: 0 0 12px; padding-left: 20px; font-size: 14px; }
+  .how li { margin: 2px 0; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  textarea { font-family: Consolas, "Cascadia Mono", monospace; font-size: 13px; line-height: 1.45; resize: vertical; }
+  #task { height: 150px; margin: 8px 0; }
+  #reply { height: 180px; margin: 8px 0; }
+  .report { margin-top: 10px; font-size: 14px; padding: 10px 12px; border-radius: 8px; }
+  .report.ok { background: var(--ok-soft); }
+  .report.warn { background: var(--gold-soft); }
+  .report.err { background: var(--bad-soft); color: var(--bad); }
+  .report ul { margin: 4px 0 0; padding-left: 20px; }
+  details.redo > summary { cursor: pointer; font-weight: 600; font-size: 15px; }
+  details.redo[open] > summary { margin-bottom: 10px; }
+
+  .pairs { padding: 4px 0; }
+  .pair { display: grid; grid-template-columns: auto 1fr 1fr; gap: 6px 14px; padding: 10px 16px 10px 10px; border-bottom: 1px solid var(--line); align-items: start; }
+  .pair:last-child { border-bottom: 0; }
+  .pair .src { font-size: 16px; }
+  .pair .tr { font-size: 15px; }
+  .pair .tr.none { color: var(--muted); font-style: italic; }
+  .pair .stale { font-size: 12px; color: var(--bad); }
+  .pair .edit { padding: 0 6px; font-size: 12px; opacity: .5; }
+  .pair:hover .edit { opacity: 1; }
+  .play { padding: 1px 7px; font-size: 12px; color: var(--muted); background: transparent; font-variant-numeric: tabular-nums; }
+  .src mark.hl { cursor: help; }
+
+  table.words { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.words th { text-align: left; font-weight: 600; color: var(--muted); font-size: 12px; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+  table.words td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.words tr:last-child td { border-bottom: 0; }
+  table.words .w { font-weight: 600; font-size: 15px; }
+  table.words .miss { color: var(--bad); }
+  table.words .note { color: var(--muted); font-size: 13px; }
+  table.words td.say { white-space: nowrap; }
+  .foot { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 18px; }
+
+  @media (max-width: 720px) {
+    .pair { grid-template-columns: auto 1fr; }
+    .pair .tr { grid-column: 2; }
+    table.words .lemma, table.words .note { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" style="max-width: 1000px">
+  <header class="top">
+    <a class="btn" href="/" data-i18n="backHome">← 课程列表</a>
+    <span id="langBadge"></span>
+    <h1 id="title"></h1>
+    <span class="spacer"></span>
+    <span data-ui-lang-slot></span>
+  </header>
+  <nav class="steps" id="steps"></nav>
+  <audio id="audio" preload="auto"></audio>
+  <div id="main"></div>
+</div>
+<script src="/static/i18n.js"></script>
+<script src="/static/common.js"></script>
+<script src="/static/translate.js"></script>
+</body>
+</html>
